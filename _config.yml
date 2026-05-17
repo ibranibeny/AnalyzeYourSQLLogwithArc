@@ -1,4 +1,26 @@
-theme: jekyll-theme-cayman
-title: Analyze Your SQL Log with Arc
-description: AI-Powered SQL Server Log Analysis using Azure Arc, Log Analytics, and GPT-4o
-baseurl: /AnalyzeYourSQLLogwithArc
+title: "Analyze Your SQL Logs with Azure Arc & AI"
+description: "A hands-on workshop to deploy AI-powered SQL Server log analysis using Azure Monitor, GPT-4o, and Microsoft Learn MCP"
+remote_theme: just-the-docs/just-the-docs
+url: "https://ibranibeny.github.io"
+baseurl: "/AnalyzeYourSQLLogwithArc"
+
+color_scheme: light
+
+nav_sort: order
+
+aux_links:
+  "View on GitHub":
+    - "https://github.com/ibranibeny/AnalyzeYourSQLLogwithArc"
+
+footer_content: "Built for <a href=\"https://github.com/ibranibeny/AnalyzeYourSQLLogwithArc\">Income Insurance SG</a> — AI-Powered SQL Log Analysis Workshop"
+
+plugins:
+  - jekyll-remote-theme
+
+exclude:
+  - scripts/
+  - streamlit-app/
+  - .github/
+  - "*.sh"
+  - "*.sql"
+  - requirements.txt
