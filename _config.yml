@@ -1,0 +1,4 @@
+theme: jekyll-theme-cayman
+title: Analyze Your SQL Log with Arc
+description: AI-Powered SQL Server Log Analysis using Azure Arc, Log Analytics, and GPT-4o
+baseurl: /AnalyzeYourSQLLogwithArc
