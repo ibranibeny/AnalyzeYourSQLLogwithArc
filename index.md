@@ -1,93 +1,72 @@
 ---
-title: Home
 layout: home
-nav_order: 0
+title: Home
+nav_order: 1
+description: "AI-Powered SQL Server Log Analysis with Azure Monitor, GPT-4o & Microsoft Learn MCP"
+permalink: /
 ---
 
-# Analyze Your SQL Logs with Azure Arc & AI
+# Analyze Your SQL Logs with Arc & AI — Workshop
+{: .fs-9 }
 
-> A hands-on workshop by **Contoso Ltd.** (Singapore Financial Services)
+Deploy an **AI-powered SQL Server log analysis** solution using Azure Monitor Agent, GPT-4o, and Microsoft Learn MCP — with zero secrets and fully managed identity.
+{: .fs-6 .fw-300 }
 
----
-
-## Workshop Goals
-
-| | |
-|---|---|
-| **What you will learn** | Deploy an end-to-end AI-powered SQL Server log analysis solution using Azure Monitor Agent, GPT-4o, and Microsoft Learn MCP |
-| **What you'll need** | Azure subscription (Contributor + User Access Admin), Azure CLI 2.61+, WSL/Bash |
-| **Duration** | 60–90 minutes |
-| **Microsoft Cloud Topics** | Azure Monitor, Log Analytics, Azure OpenAI, Azure AI Foundry, App Service, Managed Identity |
-| **Just want to see the app?** | [Streamlit App Code](https://github.com/ibranibeny/AnalyzeYourSQLLogwithArc/tree/main/streamlit-app) |
+[Get Started]({{ site.baseurl }}{% link modules/01-prerequisites.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[View Architecture]({{ site.baseurl }}{% link architecture.md %}){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
-## Solution Architecture
+## What You'll Build
 
-```
-┌──────────────────────────── SOUTHEAST ASIA ────────────────────────────────┐
-│                                                                             │
-│   Azure VM (Win 2022)              Log Analytics Workspace                  │
-│   SQL Server Express   ──AMA/DCR──▶  Event table + Perf table              │
-│                                           │                                 │
-│                                           │ KQL queries                     │
-│                                           ▼                                 │
-│   Azure App Service (Linux B1)    ◀───── azure-monitor-query SDK            │
-│   Streamlit "Talk to Your SQL Logs"                                         │
-│     │                                                                       │
-│     │  Managed Identity                                                     │
-│     │  (Cognitive Services OpenAI User)                                     │
-│     │  (Log Analytics Reader)                                               │
-└─────┼───────────────────────────────────────────────────────────────────────┘
-      │
-      │                     ┌───────── EAST US ─────────┐
-      │                     │                            │
-      ├───GPT-4o calls────▶ │  Azure OpenAI (S0)        │
-      │                     │  GPT-4o deployment         │
-      │                     │                            │
-      │                     │  Azure AI Foundry          │
-      │                     │  Hub + Project             │
-      │                     └────────────────────────────┘
-      │
-      │                     ┌───────── PUBLIC ──────────┐
-      └───MCP protocol───▶ │  learn.microsoft.com/     │
-                            │  api/mcp (no auth)        │
-                            └───────────────────────────┘
-```
+A complete AI log analysis system that:
+
+- **Centralises SQL Server logs** — AMA + DCR streams events to Log Analytics
+- **Enables natural language queries** — Ask questions like *"Why did errors spike yesterday?"*
+- **References official docs** — Microsoft Learn MCP provides documentation context
+- **Eliminates secrets** — Managed Identity for all service-to-service auth
 
 ---
 
-## Workshop Milestones
+## Architecture at a Glance
 
-| # | Milestone | Description |
+| Component | Technology | Azure Resource |
 |---|---|---|
-| 1 | [Prerequisites](docs/1-prerequisites.md) | Verify Azure access, CLI tools, quotas, and environment setup |
-| 2 | [Deploy Infrastructure](docs/2-deploy-infrastructure.md) | Provision all 10 Azure resources with a single script |
-| 3 | [Configure SQL Server](docs/3-configure-sql.md) | Install SQL Express, create the InsuranceDB, verify log flow |
-| 4 | [Simulate Errors](docs/4-simulate-errors.md) | Generate realistic SQL errors and deadlocks for testing |
-| 5 | [Deploy the AI App](docs/5-deploy-ai-app.md) | Deploy the Streamlit application and verify end-to-end |
-| 6 | [Production & Cleanup](docs/6-production-cleanup.md) | Harden for production or tear down resources |
+| 🖥️ SQL Server | SQL Express 2022 | VM — `Standard_D2s_v3` |
+| 📊 Log Collection | Azure Monitor Agent + DCR | Log Analytics Workspace |
+| 🤖 AI Engine | GPT-4o | Azure OpenAI (S0) |
+| 🧠 AI Platform | Azure AI Foundry | Hub + Project |
+| 🌐 Web App | Streamlit | App Service (B1 Linux) |
+| 📚 Documentation | Microsoft Learn MCP | Public API (no auth) |
 
 ---
 
-## Who Should Take This Workshop
+## Workshop Modules
 
-| Role | Focus Area |
-|---|---|
-| **Platform / Cloud Engineer** | Run `deploy.sh` to provision infrastructure |
-| **DevOps Engineer** | Set up CI/CD for the Streamlit app |
-| **Data / AI Engineer** | Tune KQL prompts in `kql_prompt.py` |
-| **Security Engineer** | Review RBAC assignments and plan Private Link |
+| # | Module | Duration | Description |
+|---|---|---|---|
+| 1 | [Prerequisites]({{ site.baseurl }}{% link modules/01-prerequisites.md %}) | 15 min | Verify Azure access and tooling |
+| 2 | [Architecture]({{ site.baseurl }}{% link architecture.md %}) | 10 min | Understand the system design |
+| 3 | [Deploy Infrastructure]({{ site.baseurl }}{% link modules/03-deploy-infrastructure.md %}) | 25 min | Provision all Azure resources |
+| 4 | [Configure SQL Server]({{ site.baseurl }}{% link modules/04-configure-sql.md %}) | 15 min | Install SQL Express & create database |
+| 5 | [Simulate Errors]({{ site.baseurl }}{% link modules/05-simulate-errors.md %}) | 15 min | Generate test events |
+| 6 | [Deploy the AI App]({{ site.baseurl }}{% link modules/06-deploy-ai-app.md %}) | 20 min | Deploy Streamlit & verify end-to-end |
+| 7 | [Production & Cleanup]({{ site.baseurl }}{% link modules/07-production-cleanup.md %}) | 10 min | Harden or tear down |
 
----
-
-## Pre-Learning
-
-- [Azure Monitor Agent overview](https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-overview)
-- [Azure OpenAI Service documentation](https://learn.microsoft.com/azure/ai-services/openai/)
-- [Managed identities for Azure resources](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview)
-- [KQL quick reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/kql-quick-reference)
+**Total estimated time: ~2 hours**
+{: .fs-5 .fw-300 }
 
 ---
 
-> **Ready?** Start with [Milestone 1: Prerequisites →](docs/1-prerequisites.md)
+## Key Design Decisions
+
+- **Azure CLI over Bicep/Terraform** — lower barrier for workshop attendees
+- **Managed Identity everywhere** — zero secrets in scripts or app settings
+- **GPT-4o for KQL generation** — natural language to Kusto queries
+- **Microsoft Learn MCP** — enrich answers with official documentation
+- **Single deploy script** — all 10 resources in one `deploy.sh` run
+
+---
+
+{: .note }
+> This workshop targets **`southeastasia`** and **`eastus`** regions. Verify Azure OpenAI GPT-4o quota availability before starting.
