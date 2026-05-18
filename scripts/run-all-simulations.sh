@@ -7,7 +7,7 @@
 
 set -e
 
-# ── Configuration ─────────────────────────────────────────
+# ── Configuration ─────────────────────────────────────────────────────
 export RESOURCE_GROUP="${RESOURCE_GROUP:-rg-contoso-sqlobs}"
 export VM_NAME="${VM_NAME:-vm-sql-sea-01}"
 export LAW_NAME="${LAW_NAME:-law-contoso-sqlobs}"
@@ -15,14 +15,14 @@ export LAW_NAME="${LAW_NAME:-law-contoso-sqlobs}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "============================================================"
-echo " Income Insurance SG — Full Simulation Runner"
+echo " Contoso — Full Simulation Runner"
 echo " VM:        ${VM_NAME}"
 echo " RG:        ${RESOURCE_GROUP}"
 echo " Workspace: ${LAW_NAME}"
 echo "============================================================"
 echo ""
 
-# ── Pre-flight checks ────────────────────────────────────
+# ── Pre-flight checks ────────────────────────────────────────────────
 echo "[PRE-FLIGHT] Checking Azure CLI login..."
 if ! az account show &>/dev/null; then
     echo "  ✗ Not logged in. Run: az login"
@@ -45,26 +45,26 @@ else
 fi
 echo ""
 
-# ── Phase 1: Error simulations ───────────────────────────
-echo "╔═════════════════════════════════════════════════════════╗"
+# ── Phase 1: Error simulations ───────────────────────────────────────
+echo "╔════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: SQL Error Event Simulation (19 events)       ║"
-echo "╚═════════════════════════════════════════════════════════╝"
+echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 bash "${SCRIPT_DIR}/simulate-errors.sh"
 echo ""
 
-# ── Phase 2: Deadlock & slow query simulations ────────────
-echo "╔═════════════════════════════════════════════════════════╗"
+# ── Phase 2: Deadlock & slow query simulations ──────────────────────
+echo "╔════════════════════════════════════════════════════════╗"
 echo "║  PHASE 2: Deadlock & Slow Query Simulation (9 events)  ║"
-echo "╚═════════════════════════════════════════════════════════╝"
+echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 bash "${SCRIPT_DIR}/simulate-deadlock-slowquery.sh"
 echo ""
 
-# ── Phase 3: Verify events in Log Analytics ───────────────
-echo "╔═════════════════════════════════════════════════════════╗"
+# ── Phase 3: Verify events in Log Analytics ───────────────────────
+echo "╔════════════════════════════════════════════════════════╗"
 echo "║  PHASE 3: Verification                                 ║"
-echo "╚═════════════════════════════════════════════════════════╝"
+echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 echo "Waiting 30 seconds for events to propagate to Log Analytics..."
 sleep 30
@@ -75,21 +75,21 @@ LAW_WORKSPACE_ID=$(az monitor log-analytics workspace show \
   --query customerId -o tsv)
 
 echo ""
-echo "── Error event summary ──────────────────────────────────"
+echo "── Error event summary ──────────────────────────────────────────"
 az monitor log-analytics query \
   --workspace "$LAW_WORKSPACE_ID" \
   --analytics-query "Event | where TimeGenerated > ago(30m) | where EventLevelName == 'Error' | summarize Count=count() by Source, EventID | order by Count desc" \
   --timespan PT1H -o table 2>/dev/null || echo "  (Events may not have arrived yet — retry in a few minutes)"
 
 echo ""
-echo "── Deadlock events ──────────────────────────────────────"
+echo "── Deadlock events ──────────────────────────────────────────────"
 az monitor log-analytics query \
   --workspace "$LAW_WORKSPACE_ID" \
   --analytics-query "Event | where TimeGenerated > ago(30m) | where RenderedDescription contains 'DEADLOCK' | project TimeGenerated, Source, RenderedDescription | order by TimeGenerated desc" \
   --timespan PT1H -o table 2>/dev/null || echo "  (No deadlock events yet)"
 
 echo ""
-echo "── Top 5 slowest queries ────────────────────────────────"
+echo "── Top 5 slowest queries ────────────────────────────────────────"
 az monitor log-analytics query \
   --workspace "$LAW_WORKSPACE_ID" \
   --analytics-query "Event | where TimeGenerated > ago(30m) | where RenderedDescription contains 'SLOW QUERY WARNING' | parse RenderedDescription with * 'took ' Duration:double ' seconds' * | project TimeGenerated, Duration, RenderedDescription | order by Duration desc | take 5" \
@@ -109,4 +109,9 @@ echo "   az monitor log-analytics query \\"
 echo "     --workspace \"${LAW_WORKSPACE_ID}\" \\"
 echo "     --analytics-query \"Event | where TimeGenerated > ago(1h) | where EventLevelName == 'Error' | summarize count() by Source, EventID\" \\"
 echo "     --timespan PT1H -o table"
+echo ""
+echo " Then test in the Streamlit app:"
+echo "   • Are there any deadlocks in SQL Server?"
+echo "   • List the top 5 slowest queries"
+echo "   • What errors occurred in the last 30 minutes?"
 echo "============================================================"

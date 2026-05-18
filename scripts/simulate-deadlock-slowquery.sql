@@ -1,5 +1,5 @@
 -- ============================================================
--- Income Insurance SG - Deadlock & Slow Query Simulation
+-- Contoso - Deadlock & Slow Query Simulation
 -- Generates real deadlocks and slow queries on InsuranceDB
 -- Run with: sqlcmd -S .\SQLEXPRESS -E -d InsuranceDB -i simulate-deadlock-slowquery.sql
 -- ============================================================
@@ -184,13 +184,13 @@ GO
 -- ── Slow Query 4: LIKE with leading wildcard on large table ──
 PRINT '   [4/5] Leading wildcard LIKE - full table scan on Customers';
 
-SELECT c.customer_id, c.full_name, c.email, c.nric_last4,
+SELECT c.customer_id, c.full_name, c.email, c.nric_masked,
        p.policy_number, p.annual_premium
 FROM Customers c
 JOIN Policies p ON c.customer_id = p.customer_id
 WHERE c.full_name LIKE '%Tan%'
    OR c.email LIKE '%gmail%'
-   OR c.nric_last4 LIKE '%1234%'
+   OR c.nric_masked LIKE '%1234%'
 ORDER BY c.full_name;
 GO
 
@@ -237,3 +237,12 @@ GO
 -- DROP TABLE IF EXISTS dbo.DeadlockTableB;
 -- DROP PROCEDURE IF EXISTS dbo.sp_DeadlockSession1;
 -- DROP PROCEDURE IF EXISTS dbo.sp_DeadlockSession2;
+
+PRINT '';
+PRINT '============================================';
+PRINT 'Simulation complete: ' + CONVERT(VARCHAR, GETDATE(), 120);
+PRINT '  - 3x deadlock events logged';
+PRINT '  - 5x slow queries executed + logged';
+PRINT '  - Events will appear in Log Analytics in 5-10 min';
+PRINT '============================================';
+GO

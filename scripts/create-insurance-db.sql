@@ -1,5 +1,5 @@
 -- ============================================================
--- Income Insurance SG - Demo Database
+-- Contoso - Demo Database
 -- Creates InsuranceDB with 500+ rows per table
 -- ============================================================
 
@@ -45,7 +45,7 @@ SELECT
         'Ahmad Tan','Siti Lim','Budi Ng','Dewi Wong','Rizal Koh',
         'Nurul Chen','Fajar Teo','Maya Goh','Andi Lee','Putri Ong') 
         + ' ' + CAST(n AS VARCHAR),
-    'agent' + CAST(n AS VARCHAR) + '@incomeins.sg',
+    'agent' + CAST(n AS VARCHAR) + '@contoso.com',
     '+65 9' + RIGHT('000' + CAST(ABS(CHECKSUM(NEWID())) % 10000 AS VARCHAR), 4) 
              + RIGHT('000' + CAST(ABS(CHECKSUM(NEWID())) % 10000 AS VARCHAR), 4),
     CHOOSE((n % 5) + 1, 'Orchard','Jurong','Tampines','Woodlands','Marina Bay'),

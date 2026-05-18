@@ -1,5 +1,5 @@
 -- ============================================================
--- Income Insurance SG - Query Simulation Script
+-- Contoso - Query Simulation Script
 -- Runs various realistic queries to generate SQL Server logs
 -- Run with: sqlcmd -S .\SQLEXPRESS -U sa -P "Contoso!Sql2024" -d InsuranceDB -i simulate-queries.sql
 -- ============================================================
