@@ -6,20 +6,42 @@
 
 ## Architecture
 
-```
-SQL Server (vm-sql-sea-01)
-  ├─ RAISERROR WITH LOG → Windows Application Event Log
-  ├─ Failed logins      → Windows Application Event Log
-  └─ SQL errors         → Windows Application Event Log
-          │
-          ▼
-  Azure Monitor Agent (AMA) + DCR
-          │
-          ▼
-  Log Analytics Workspace (law-contoso-sqlobs)
-          │
-          ▼
-  Streamlit AI App (NL → KQL via GPT-4o)
+```mermaid
+graph TB
+    subgraph RG["rg-contoso-sqlobs"]
+        subgraph SEA["Southeast Asia"]
+            VM["vm-sql-sea-01\nWindows Server 2022\nSQL Server Express"]
+            AMA["Azure Monitor Agent\n(AMA Extension)"]
+            DCE["Data Collection Endpoint"]
+            DCR["Data Collection Rule\n(dcr-sql-windows-logs)"]
+            LAW["law-contoso-sqlobs\nLog Analytics Workspace"]
+            ASP["asp-contoso-streamlit\nApp Service Plan (B1 Linux)"]
+            APP["app-contoso-sqllogs\nStreamlit Web App"]
+            MI_APP["Managed Identity\n(System-Assigned)"]
+        end
+        subgraph EUS["East US"]
+            AOAI["aoai-contoso-sqllogs\nAzure OpenAI (S0)"]
+            GPT["GPT-4o Deployment\n(30K TPM)"]
+            HUB["ai-hub-contoso\nAI Foundry Hub"]
+            PROJ["ai-proj-sqllogs\nAI Foundry Project"]
+        end
+    end
+    subgraph EXT["External"]
+        MCP["learn.microsoft.com\nMCP Protocol\n(No Auth)"]
+    end
+
+    VM -->|"Windows Event Log"| AMA
+    AMA -->|"Collects via"| DCR
+    DCR -->|"Sends to"| DCE
+    DCE -->|"Ingests into"| LAW
+    APP -->|"KQL Queries\n(Log Analytics Reader)"| LAW
+    APP -->|"GPT-4o Calls\n(Cognitive Services OpenAI User)"| AOAI
+    AOAI --- GPT
+    HUB --- PROJ
+    PROJ -->|"Credential-less Connection"| AOAI
+    APP --- MI_APP
+    APP -->|"MCP Protocol"| MCP
+    VM -->|"SQL Errors, Deadlocks\nSlow Queries, Failed Logins"| VM
 ```
 
 ---

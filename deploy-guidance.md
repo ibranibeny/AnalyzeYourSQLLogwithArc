@@ -35,35 +35,42 @@
 
 ### Target Architecture
 
-```
-┌──────────────────────────── SOUTHEAST ASIA ─────────────────────────────┐
-│                                                                             │
-│   Azure VM (Win 2022)              Log Analytics Workspace                  │
-│   SQL Server Express   ──AMA/DCR──▶  Event table + Perf table              │
-│                                           │                                 │
-│                                           │ KQL queries                     │
-│                                           ▼                                 │
-│   Azure App Service (Linux B1)    ◀───── azure-monitor-query SDK            │
-│   Streamlit "Talk to Your SQL Logs"                                         │
-│     │                                                                       │
-│     │  Managed Identity                                                     │
-│     │  (Cognitive Services OpenAI User)                                     │
-│     │  (Log Analytics Reader)                                               │
-└─────┼─────────────────────────────────────────────────────────────────────┘
-      │
-      │                     ┌───────── EAST US ─────────┐
-      │                     │                            │
-      ├───GPT-4o calls────▶ │  Azure OpenAI (S0)        │
-      │                     │  GPT-4o deployment         │
-      │                     │                            │
-      │                     │  Azure AI Foundry          │
-      │                     │  Hub + Project             │
-      │                     └────────────────────────────┘
-      │
-      │                     ┌───────── PUBLIC ──────────┐
-      └───MCP protocol───▶ │  learn.microsoft.com/     │
-                            │  api/mcp (no auth)        │
-                            └───────────────────────────┘
+```mermaid
+graph TB
+    subgraph RG["rg-contoso-sqlobs"]
+        subgraph SEA["Southeast Asia"]
+            VM["vm-sql-sea-01\nWindows Server 2022\nSQL Server Express"]
+            AMA["Azure Monitor Agent\n(AMA Extension)"]
+            DCE["Data Collection Endpoint"]
+            DCR["Data Collection Rule\n(dcr-sql-windows-logs)"]
+            LAW["law-contoso-sqlobs\nLog Analytics Workspace\n(Event + Perf tables)"]
+            ASP["asp-contoso-streamlit\nApp Service Plan (B1 Linux)"]
+            APP["app-contoso-sqllogs\nStreamlit Web App\n'Talk to Your SQL Logs'"]
+            MI_APP["Managed Identity\n(System-Assigned)"]
+        end
+        subgraph EUS["East US"]
+            AOAI["aoai-contoso-sqllogs\nAzure OpenAI (S0)"]
+            GPT["GPT-4o Deployment\n(30K TPM)"]
+            HUB["ai-hub-contoso\nAI Foundry Hub"]
+            PROJ["ai-proj-sqllogs\nAI Foundry Project"]
+        end
+    end
+    subgraph EXT["External"]
+        MCP["learn.microsoft.com\nMCP Protocol\n(No Auth)"]
+    end
+
+    VM -->|"Windows Event Log"| AMA
+    AMA -->|"Collects via"| DCR
+    DCR -->|"Sends to"| DCE
+    DCE -->|"Ingests into"| LAW
+    APP -->|"KQL Queries\n(Log Analytics Reader)"| LAW
+    APP -->|"GPT-4o Calls\n(Cognitive Services OpenAI User)"| AOAI
+    AOAI --- GPT
+    HUB --- PROJ
+    PROJ -->|"Credential-less Connection"| AOAI
+    APP --- MI_APP
+    APP -->|"MCP Protocol"| MCP
+    VM -->|"SQL Errors, Perf Counters"| VM
 ```
 
 ### Who Should Deploy This
