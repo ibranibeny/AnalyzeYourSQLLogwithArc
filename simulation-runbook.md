@@ -1,4 +1,4 @@
-# Simulation Runbook — Income Insurance SG
+# Simulation Runbook — Contoso
 
 > Step-by-step guide to generate SQL Server error events for AI Log Analysis testing.
 
@@ -56,7 +56,7 @@ az vm start -g rg-contoso-sqlobs -n vm-sql-sea-01
 Runs Phase 1 + Phase 2 + Phase 3 verification in one go.
 
 ```bash
-cd "/mnt/c/Users/benyibrani/OneDrive - Microsoft/Documents/Project/Income Insurance SG"
+cd "/mnt/c/Users/benyibrani/OneDrive - Microsoft/Documents/Project/Contoso"
 bash scripts/run-all-simulations.sh
 ```
 
@@ -308,3 +308,28 @@ Once events are visible in Log Analytics, open the Streamlit app and ask:
 | 10 | Are there any deadlocks in SQL Server? | 4 deadlock events with tables and durations |
 | 11 | List the top 5 slowest queries | 5 queries ranked by duration |
 | 12 | Which tables are involved in deadlocks? | Policies, Claims, Customers, Transactions |
+| 13 | What query optimisation do you recommend? | Full-text index, JOIN rewrite, materialised views |
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `Not logged in` | Run `az login` |
+| `VM state: VM deallocated` | Run `az vm start -g rg-contoso-sqlobs -n vm-sql-sea-01` |
+| Events not appearing after 10 min | Check AMA agent is running on VM and DCR is collecting Application Event Log |
+| `STRING_AGG` syntax error | Known SQL Express limitation — the RAISERROR event is still logged |
+| Verification shows 0 events | Log Analytics ingestion can take up to 15 min; retry later |
+| `az vm run-command` timeout | The VM command has a default 90-second timeout; long-running queries may time out but still execute on the VM |
+
+---
+
+## Scripts Reference
+
+| Script | Purpose | Events |
+|---|---|---|
+| [`scripts/simulate-errors.sh`](scripts/simulate-errors.sh) | SQL error events (DB, table, login, backup) | 19 |
+| [`scripts/simulate-deadlock-slowquery.sh`](scripts/simulate-deadlock-slowquery.sh) | Deadlock + slow query simulation | 9 |
+| [`scripts/run-all-simulations.sh`](scripts/run-all-simulations.sh) | Master runner (Phase 1 + 2 + 3 verification) | 28 |
+| [`scripts/simulate-deadlock-slowquery.sql`](scripts/simulate-deadlock-slowquery.sql) | SQL file for direct execution on VM | — |
