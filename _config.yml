@@ -22,7 +22,7 @@ nav_sort: case_insensitive
 back_to_top: true
 back_to_top_text: "Back to top"
 
-footer_content: "SQL Log Analysis Workshop &mdash; Income Insurance SG"
+footer_content: "SQL Log Analysis Workshop &mdash; Contoso"
 
 exclude:
   - scripts/
